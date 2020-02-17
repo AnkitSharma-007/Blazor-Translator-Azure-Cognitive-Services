@@ -5,3 +5,7 @@ A multi-language translator using Blazor and Azure translate text Cognitive Serv
 # Demo
 
 ![Alt Text](https://github.com/AnkitSharma-007/Blazor-Translator-Azure-Cognitive-Services/blob/master/OuputScreenshot/BlazorTranslator.gif)
+
+# Read the complete article at
+
+[Multi-Language Translator Using Blazor And Azure Cognitive Services](https://ankitsharmablogs.com/multi-language-translator-using-blazor-and-azure-cognitive-services/)
