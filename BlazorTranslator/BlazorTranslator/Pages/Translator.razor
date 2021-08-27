@@ -1,0 +1,62 @@
+﻿@page "/translator"
+@using BlazorTranslator.Models
+@using BlazorTranslator.Data
+@inject TranslationService translationService
+
+<h3>Multilanguage translator using Microsoft Translator API Cognitive Service</h3>
+<hr />
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <select class="form-control" @bind="inputLanguage">
+                <option value="">-- Select input language --</option>
+                @foreach (KeyValuePair<string, LanguageDetails> lang in LanguageList)
+                {
+                    <option value="@lang.Key">@lang.Value.Name</option>
+                }
+            </select>
+            <textarea placeholder="Enter text to translate" class="form-control mt-3 mb-3" rows="5" @bind="@inputText"></textarea>
+        </div>
+        <div class="col-md-6">
+            <select class="form-control" @onchange="SelectLanguage">
+                <option value="">-- Select target language --</option>
+                @foreach (KeyValuePair<string, LanguageDetails> lang in LanguageList)
+                {
+                    <option value="@lang.Key">@lang.Value.Name</option>
+                }
+            </select>
+            <textarea disabled class="form-control mt-3 mb-3" rows="5">@outputText</textarea>
+        </div>
+    </div>
+    <div class="text-center">
+        <button class="btn btn-primary btn-lg" @onclick="Translate">Translate</button>
+    </div>
+</div>
+
+@code {
+    private TranslationResult[] translations;
+    private AvailableLanguage availableLanguages;
+    private string outputLanguage { get; set; }
+    private string inputLanguage { get; set; }
+    string inputText { get; set; }
+    string outputText { get; set; }
+    private Dictionary<string, LanguageDetails> LanguageList = new Dictionary<string, LanguageDetails>();
+    protected override async Task OnInitializedAsync()
+    {
+        availableLanguages = await translationService.GetAvailableLanguages();
+        LanguageList = availableLanguages.Translation;
+    }
+    private void SelectLanguage(ChangeEventArgs langEvent)
+    {
+        this.outputLanguage = langEvent.Value.ToString();
+    }
+    private async Task Translate()
+    {
+        if (!string.IsNullOrEmpty(outputLanguage))
+        {
+            translations = await translationService.GetTranslatation(this.inputText, this.outputLanguage);
+            outputText = translations[0].Translations[0].Text;
+            inputLanguage = translations[0].DetectedLanguage.Language;
+        }
+    }
+}
