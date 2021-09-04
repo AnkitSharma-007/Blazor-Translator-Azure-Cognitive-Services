@@ -3,7 +3,7 @@
 @using BlazorTranslator.Data
 @inject TranslationService translationService
 
-<h3>Multilanguage translator using Microsoft Translator API Cognitive Service</h3>
+<h2>Multilanguage translator using Microsoft Translator API Cognitive Service</h2>
 <hr />
 <div class="container">
     <div class="row">
@@ -34,29 +34,42 @@
 </div>
 
 @code {
-    private TranslationResult[] translations;
-    private AvailableLanguage availableLanguages;
-    private string outputLanguage { get; set; }
-    private string inputLanguage { get; set; }
+
+    TranslationResult[] translations;
+    AvailableLanguage availableLanguages;
+
+    string outputLanguage { get; set; }
+    string inputLanguage { get; set; }
     string inputText { get; set; }
     string outputText { get; set; }
-    private Dictionary<string, LanguageDetails> LanguageList = new Dictionary<string, LanguageDetails>();
+    Dictionary<string, LanguageDetails> LanguageList = new Dictionary<string, LanguageDetails>();
+
     protected override async Task OnInitializedAsync()
     {
         availableLanguages = await translationService.GetAvailableLanguages();
         LanguageList = availableLanguages.Translation;
     }
+
     private void SelectLanguage(ChangeEventArgs langEvent)
     {
         this.outputLanguage = langEvent.Value.ToString();
     }
+
     private async Task Translate()
     {
         if (!string.IsNullOrEmpty(outputLanguage))
         {
             translations = await translationService.GetTranslatation(this.inputText, this.outputLanguage);
-            outputText = translations[0].Translations[0].Text;
-            inputLanguage = translations[0].DetectedLanguage.Language;
+
+            if (translations != null)
+            {
+                outputText = translations[0].Translations[0].Text;
+                inputLanguage = translations[0].DetectedLanguage.Language;
+            }
+            else
+            {
+                outputText = "An error occurred in translation. Please try again.";
+            }
         }
     }
 }
