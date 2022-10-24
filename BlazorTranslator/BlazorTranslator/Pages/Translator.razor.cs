@@ -1,7 +1,6 @@
 ﻿using BlazorTranslator.Data;
 using BlazorTranslator.Models;
 using Microsoft.AspNetCore.Components;
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -12,35 +11,30 @@ namespace BlazorTranslator.Pages
         [Inject]
         protected TranslationService translationService { get; set; }
 
-        TranslationResult[] translations;
-        AvailableLanguage availableLanguages;
-
-        protected string outputLanguage { get; set; }
-        protected string inputLanguage { get; set; }
-        protected string inputText { get; set; }
-        protected string outputText { get; set; }
-        protected Dictionary<string, LanguageDetails> LanguageList = new Dictionary<string, LanguageDetails>();
+        protected string inputLanguage { get; set; } = default;
+        protected string outputLanguage { get; set; } = default;
+        protected string inputText { get; set; } = default;
+        protected string outputText { get; set; } = default;
+        protected Dictionary<string, LanguageDetails> LanguageList = new();
 
         protected override async Task OnInitializedAsync()
         {
-            availableLanguages = await translationService.GetAvailableLanguages();
-         
+            AvailableLanguage availableLanguages = await translationService.GetAvailableLanguages();
             LanguageList = availableLanguages.Translation;
-            Console.WriteLine("count {0}",LanguageList.Count);
         }
 
-        protected void SelectLanguage(ChangeEventArgs langEvent)
+        protected void SelectLanguage(ChangeEventArgs languageEvent)
         {
-            outputLanguage = langEvent.Value.ToString();
+            outputLanguage = languageEvent.Value.ToString();
         }
 
         protected async Task Translate()
         {
             if (!string.IsNullOrEmpty(outputLanguage))
             {
-                translations = await translationService.GetTranslatation(this.inputText, this.outputLanguage);
+                TranslationResult[] translations = await translationService.GetTranslatation(inputText, outputLanguage);
 
-                if (translations != null)
+                if (translations is not null)
                 {
                     outputText = translations[0].Translations[0].Text;
                     inputLanguage = translations[0].DetectedLanguage.Language;
