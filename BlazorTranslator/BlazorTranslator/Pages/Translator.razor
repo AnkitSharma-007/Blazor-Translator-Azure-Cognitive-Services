@@ -1,18 +1,17 @@
 ﻿@page "/translator"
+@inherits TranslatorBase
 @using BlazorTranslator.Models
-@using BlazorTranslator.Data
-@inject TranslationService translationService
 
-<h2>Multilanguage translator using Microsoft Translator API Cognitive Service</h2>
+<h2>Multilanguage translator using Azure Translator Service</h2>
 <hr />
 <div class="container">
     <div class="row">
         <div class="col-md-6">
             <select class="form-control" @bind="inputLanguage">
                 <option value="">-- Select input language --</option>
-                @foreach (KeyValuePair<string, LanguageDetails> lang in LanguageList)
+                @foreach (KeyValuePair<string, LanguageDetails> language in LanguageList)
                 {
-                    <option value="@lang.Key">@lang.Value.Name</option>
+                    <option value="@language.Key">@language.Value.Name</option>
                 }
             </select>
             <textarea placeholder="Enter text to translate" class="form-control mt-3 mb-3" rows="5" @bind="@inputText"></textarea>
@@ -32,44 +31,3 @@
         <button class="btn btn-primary btn-lg" @onclick="Translate">Translate</button>
     </div>
 </div>
-
-@code {
-
-    TranslationResult[] translations;
-    AvailableLanguage availableLanguages;
-
-    string outputLanguage { get; set; }
-    string inputLanguage { get; set; }
-    string inputText { get; set; }
-    string outputText { get; set; }
-    Dictionary<string, LanguageDetails> LanguageList = new Dictionary<string, LanguageDetails>();
-
-    protected override async Task OnInitializedAsync()
-    {
-        availableLanguages = await translationService.GetAvailableLanguages();
-        LanguageList = availableLanguages.Translation;
-    }
-
-    private void SelectLanguage(ChangeEventArgs langEvent)
-    {
-        this.outputLanguage = langEvent.Value.ToString();
-    }
-
-    private async Task Translate()
-    {
-        if (!string.IsNullOrEmpty(outputLanguage))
-        {
-            translations = await translationService.GetTranslatation(this.inputText, this.outputLanguage);
-
-            if (translations != null)
-            {
-                outputText = translations[0].Translations[0].Text;
-                inputLanguage = translations[0].DetectedLanguage.Language;
-            }
-            else
-            {
-                outputText = "An error occurred in translation. Please try again.";
-            }
-        }
-    }
-}
